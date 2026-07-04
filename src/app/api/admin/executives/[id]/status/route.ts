@@ -2,7 +2,10 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 
-export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getSession();
     if (!session || session.role !== 'Admin') {
@@ -10,7 +13,7 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
     }
 
     const params = await props.params;
-    const targetId = parseInt(params.id, 10);
+    const targetId = Number(params.id);
     
     if (isNaN(targetId)) {
       return NextResponse.json({ error: 'Invalid executive ID' }, { status: 400 });
