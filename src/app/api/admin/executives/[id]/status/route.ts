@@ -11,6 +11,11 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
     const params = await props.params;
     const targetId = parseInt(params.id, 10);
+    
+    if (isNaN(targetId)) {
+      return NextResponse.json({ error: 'Invalid executive ID' }, { status: 400 });
+    }
+
     const { status } = await request.json();
 
     if (status !== 'Active' && status !== 'Blocked') {
