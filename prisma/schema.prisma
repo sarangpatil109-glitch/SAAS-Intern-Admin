@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  sales_id   String   @unique
+  name       String
+  phone      String
+  email      String   @unique
+  password   String
+  role       String   // 'Admin' or 'Sales Executive'
+  status     String   @default("Active") // 'Active' or 'Blocked'
+
+  upi_id              String?
+  account_holder_name String?
+  bank_name           String?
+  account_number      String?
+  ifsc_code           String?
+  payment_qr_image    String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  sales      Sale[]
+  commissions Commission[]
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  status     String   @default("Active") // 'Active' or 'Inactive'
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  sales      Sale[]
+  commission_setting CommissionSetting?
+  commissions Commission[]
+}
+
+model Sale {
+  id                 Int      @id @default(autoincrement())
+  sales_executive_id Int
+  sales_executive    User     @relation(fields: [sales_executive_id], references: [id])
+  customer_name      String
+  customer_phone     String
+  customer_email     String
+  product_id         Int
+  product            Product  @relation(fields: [product_id], references: [id])
+  payment_screenshot String
+  remarks            String?
+  status             String   @default("Pending") // 'Pending', 'Approved', 'Rejected'
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  commission         Commission?
+}
+
+model CommissionSetting {
+  id                Int      @id @default(autoincrement())
+  product_id        Int      @unique
+  product           Product  @relation(fields: [product_id], references: [id])
+  commission_amount Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+model Commission {
+  id                 Int      @id @default(autoincrement())
+  sale_id            Int      @unique
+  sale               Sale     @relation(fields: [sale_id], references: [id])
+  sales_executive_id Int
+  sales_executive    User     @relation(fields: [sales_executive_id], references: [id])
+  product_id         Int
+  product            Product  @relation(fields: [product_id], references: [id])
+  commission_amount  Float
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+}
